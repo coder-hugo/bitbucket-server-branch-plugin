@@ -1,0 +1,20 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
+  <div>
+    <p>
+      Activate this option to auto-register a hook on the specified Bitbucket repository. This hook will notify Jenkins
+      about new commits on branches and pull requests, so new builds will be triggered automatically on related jobs if
+      they have the pollSCM trigger enabled.
+    </p>
+    <p>
+      Otherwise the hook can be created manually. The following Bitbucket Server WebHook add-ons are supported:
+      <ul>
+        <!-- TODO get this working -->
+        <j:forEach var="webHookAddon" items="${descriptor.getWebHookAddons()}">
+          <li>${webHookAddon.name} (Hook URL: [JENKINS_ROOT_URL]/${webHookAddon.url}</li>
+        </j:forEach>
+      </ul>
+      NOTE: [JENKINS_ROOT_URL] must be exactly the same that is configured in Jenkins main configuration.
+    </p>
+  </div>
+</j:jelly>

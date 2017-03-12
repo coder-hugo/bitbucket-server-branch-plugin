@@ -36,6 +36,7 @@ public class BitbucketSCMNavigator extends SCMNavigator {
     private final BitbucketClientConfiguration clientConfiguration;
     private final String project;
     private String pattern = ".*";
+    private boolean autoRegisterHooks;
     private String checkoutCredentialsId;
     private String includes = "*";
     private String excludes;
@@ -69,6 +70,15 @@ public class BitbucketSCMNavigator extends SCMNavigator {
     @DataBoundSetter
     public void setPattern(String pattern) {
         this.pattern = pattern;
+    }
+
+    public boolean isAutoRegisterHooks() {
+        return autoRegisterHooks;
+    }
+
+    @DataBoundSetter
+    public void setAutoRegisterHooks(boolean autoRegisterHooks) {
+        this.autoRegisterHooks = autoRegisterHooks;
     }
 
     public String getCheckoutCredentialsId() {
@@ -122,6 +132,7 @@ public class BitbucketSCMNavigator extends SCMNavigator {
             SCMSourceObserver.ProjectObserver projectObserver = observer.observe(repository.getName());
             BitbucketSCMSource scmSource =
                     new BitbucketSCMSource(getId() + "::" + repositorySlug, clientConfiguration, project, repositorySlug);
+            scmSource.setAutoRegisterHook(autoRegisterHooks);
             scmSource.setCheckoutCredentialsId(checkoutCredentialsId);
             scmSource.setIncludes(includes);
             scmSource.setExcludes(excludes);

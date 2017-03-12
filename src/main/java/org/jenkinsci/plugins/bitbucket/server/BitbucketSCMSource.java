@@ -65,6 +65,7 @@ public class BitbucketSCMSource extends SCMSource {
     private final BitbucketClientConfiguration clientConfiguration;
     private final String project;
     private final String repository;
+    private boolean autoRegisterHook;
     private String checkoutCredentialsId;
     private String includes = "*";
     private String excludes;
@@ -97,6 +98,15 @@ public class BitbucketSCMSource extends SCMSource {
         return repository;
     }
 
+    public boolean isAutoRegisterHook() {
+        return autoRegisterHook;
+    }
+
+    @DataBoundSetter
+    public void setAutoRegisterHook(boolean autoRegisterHook) {
+        this.autoRegisterHook = autoRegisterHook;
+    }
+
     public String getCheckoutCredentialsId() {
         return checkoutCredentialsId;
     }
@@ -122,6 +132,10 @@ public class BitbucketSCMSource extends SCMSource {
     @DataBoundSetter
     public void setExcludes(String excludes) {
         this.excludes = excludes;
+    }
+
+    public BitbucketServerAPI getClient() {
+        return BitbucketServerClientService.instance().getClient(clientConfiguration, getOwner());
     }
 
     @Override
@@ -157,10 +171,6 @@ public class BitbucketSCMSource extends SCMSource {
                 return;
             }
         }
-    }
-
-    private BitbucketServerAPI getClient() {
-        return BitbucketServerClientService.instance().getClient(clientConfiguration, getOwner());
     }
 
     @NonNull

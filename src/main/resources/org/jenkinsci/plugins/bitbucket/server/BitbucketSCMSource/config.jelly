@@ -13,6 +13,9 @@
   <f:entry title="${%Repository name}" field="repository">
     <f:textbox/>
   </f:entry>
+  <f:entry field="autoRegisterHook">
+    <f:checkbox title="${%Auto-register web hook}"/>
+  </f:entry>
   <f:advanced>
     <f:entry title="${%Include branches}" field="includes">
       <f:textbox default="*"/>

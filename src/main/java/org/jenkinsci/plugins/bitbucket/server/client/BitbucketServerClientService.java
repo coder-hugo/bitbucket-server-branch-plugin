@@ -24,6 +24,7 @@ import static com.cloudbees.plugins.credentials.CredentialsMatchers.firstOrNull;
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.instanceOf;
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.withId;
 import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
+import static org.glassfish.jersey.client.ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION;
 
 
 /**
@@ -56,6 +57,7 @@ public final class BitbucketServerClientService {
                     .register(new BasicAuthFilter(findCredentials(clientConfiguration, context)))
                     .register(new LoggingFilter())
                     .build()
+                    .property(SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
                     .target(clientConfiguration.getBaseUrl());
             client = WebResourceFactory.newResource(BitbucketServerAPI.class, target);
             clientCache.put(key, client);

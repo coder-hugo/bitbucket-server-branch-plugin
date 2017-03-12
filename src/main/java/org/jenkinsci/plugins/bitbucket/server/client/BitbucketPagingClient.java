@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.bitbucket.server.client;
 
 import org.jenkinsci.plugins.bitbucket.server.api.BitbucketServerAPI;
 import org.jenkinsci.plugins.bitbucket.server.api.model.Branch;
+import org.jenkinsci.plugins.bitbucket.server.api.model.HookAddon;
 import org.jenkinsci.plugins.bitbucket.server.api.model.Page;
 import org.jenkinsci.plugins.bitbucket.server.api.model.PageRequest;
 import org.jenkinsci.plugins.bitbucket.server.api.model.Repository;
@@ -31,6 +32,15 @@ public class BitbucketPagingClient {
             @Override
             protected Page<Branch> getNextPage(PageRequest pageRequest) {
                 return client.getBranches(project, repository, pageRequest);
+            }
+        };
+    }
+
+    public Iterable<HookAddon> getHooks(final String project, final String repository) {
+        return new APIPageIterable<HookAddon>() {
+            @Override
+            protected Page<HookAddon> getNextPage(PageRequest pageRequest) {
+                return client.getHooks(project, repository, pageRequest);
             }
         };
     }

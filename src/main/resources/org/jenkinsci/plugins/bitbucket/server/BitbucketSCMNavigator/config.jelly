@@ -13,6 +13,9 @@
   <f:entry title="${%Repository name pattern}" field="pattern">
     <f:textbox default=".*"/>
   </f:entry>
+  <f:entry field="autoRegisterHooks">
+    <f:checkbox title="${%Auto-register webhooks}" />
+  </f:entry>
   <f:advanced>
     <f:entry title="${%Include branches}" field="includes">
       <f:textbox default="*"/>
