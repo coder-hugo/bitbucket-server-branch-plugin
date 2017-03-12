@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+  <f:entry title="${%Bitbucket Server URL}" field="bitbucketServerUrl">
+    <f:textbox/>
+  </f:entry>
+  <f:entry title="${%Scan credentials}" field="scanCredentialsId">
+    <c:select/>
+  </f:entry>
+  <f:entry title="${%Project}" field="project">
+    <f:textbox/>
+  </f:entry>
+  <f:entry title="${%Repository name pattern}" field="pattern">
+    <f:textbox default=".*"/>
+  </f:entry>
+  <f:advanced>
+    <f:entry title="${%Include branches}" field="includes">
+      <f:textbox default="*"/>
+    </f:entry>
+    <f:entry title="${%Exclude branches}" field="excludes">
+      <f:textbox/>
+    </f:entry>
+    <f:entry title="${%Checkout credentials}" field="checkoutCredentialsId">
+      <c:select default="${descriptor.SAME}"/>
+    </f:entry>
+  </f:advanced>
+</j:jelly>
