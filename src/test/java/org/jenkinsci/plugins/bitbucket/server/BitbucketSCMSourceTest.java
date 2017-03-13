@@ -81,7 +81,7 @@ public class BitbucketSCMSourceTest {
         String project = "project";
         String repository = "repository";
 
-        when(clientMock.getBranches(project, repository, null)).thenReturn(PageBuilder.<Branch>aPage()
+        when(clientMock.getBranches(project, repository, null, null)).thenReturn(PageBuilder.<Branch>aPage()
                                                                                    .isLastPage(true)
                                                                                    .values(Collections.<Branch>emptyList())
                                                                                    .build());
@@ -103,7 +103,7 @@ public class BitbucketSCMSourceTest {
         String project = "project";
         String repository = "repository";
 
-        when(clientMock.getBranches(project, repository, null)).thenReturn(PageBuilder.<Branch>aPage()
+        when(clientMock.getBranches(project, repository, null, null)).thenReturn(PageBuilder.<Branch>aPage()
                                                                                    .isLastPage(true)
                                                                                    .values(Collections.<Branch>emptyList())
                                                                                    .build());
@@ -127,7 +127,7 @@ public class BitbucketSCMSourceTest {
         String branch = "master";
         String commitId = "123abc";
 
-        when(clientMock.getBranches(project, repository, null)).thenReturn(PageBuilder.<Branch>aPage()
+        when(clientMock.getBranches(project, repository, null, null)).thenReturn(PageBuilder.<Branch>aPage()
                                                                                    .isLastPage(true)
                                                                                    .values(Collections.singletonList(aBranch()
                                                                                                                              .displayId(branch)
@@ -155,7 +155,7 @@ public class BitbucketSCMSourceTest {
         String branch = "master";
         String commitId = "123abc";
 
-        when(clientMock.getBranches(project, repository, null)).thenReturn(PageBuilder.<Branch>aPage()
+        when(clientMock.getBranches(project, repository, null, null)).thenReturn(PageBuilder.<Branch>aPage()
                                                                                    .isLastPage(true)
                                                                                    .values(Collections.singletonList(aBranch()
                                                                                                                              .displayId(branch)
@@ -189,7 +189,7 @@ public class BitbucketSCMSourceTest {
                 .latestCommit("456def")
                 .build();
 
-        when(clientMock.getBranches(project, repository, null)).thenReturn(PageBuilder.<Branch>aPage()
+        when(clientMock.getBranches(project, repository, null, null)).thenReturn(PageBuilder.<Branch>aPage()
                                                                                    .isLastPage(true)
                                                                                    .values(Arrays.asList(matchingBranch, nonMatchingBranch))
                                                                                    .build());
@@ -222,7 +222,7 @@ public class BitbucketSCMSourceTest {
         String notIncludedBranch = "not-included";
         String notIncludedCommitId = "456def";
 
-        when(clientMock.getBranches(project, repository, null)).thenReturn(PageBuilder.<Branch>aPage()
+        when(clientMock.getBranches(project, repository, null, null)).thenReturn(PageBuilder.<Branch>aPage()
                                                                                    .isLastPage(true)
                                                                                    .values(Arrays.asList(aBranch()
                                                                                                                  .displayId(includedBranch)

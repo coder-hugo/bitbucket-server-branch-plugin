@@ -22,7 +22,9 @@ public class BitbucketPagingClient {
         return new APIPageIterable<Repository>() {
             @Override
             protected Page<Repository> getNextPage(PageRequest pageRequest) {
-                return client.getRepositories(project, pageRequest);
+                Integer start = pageRequest == null ? null : pageRequest.getStart();
+                Integer limit = pageRequest == null ? null : pageRequest.getLimit();
+                return client.getRepositories(project, start, limit);
             }
         };
     }
@@ -31,7 +33,9 @@ public class BitbucketPagingClient {
         return new APIPageIterable<Branch>() {
             @Override
             protected Page<Branch> getNextPage(PageRequest pageRequest) {
-                return client.getBranches(project, repository, pageRequest);
+                Integer start = pageRequest == null ? null : pageRequest.getStart();
+                Integer limit = pageRequest == null ? null : pageRequest.getLimit();
+                return client.getBranches(project, repository, start, limit);
             }
         };
     }
@@ -40,7 +44,9 @@ public class BitbucketPagingClient {
         return new APIPageIterable<HookAddon>() {
             @Override
             protected Page<HookAddon> getNextPage(PageRequest pageRequest) {
-                return client.getHooks(project, repository, pageRequest);
+                Integer start = pageRequest == null ? null : pageRequest.getStart();
+                Integer limit = pageRequest == null ? null : pageRequest.getLimit();
+                return client.getHooks(project, repository, start, limit);
             }
         };
     }

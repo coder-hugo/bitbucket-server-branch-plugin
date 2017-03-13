@@ -7,10 +7,8 @@ import org.jenkinsci.plugins.bitbucket.server.api.model.BuildStatus;
 import org.jenkinsci.plugins.bitbucket.server.api.model.Commit;
 import org.jenkinsci.plugins.bitbucket.server.api.model.HookAddon;
 import org.jenkinsci.plugins.bitbucket.server.api.model.Page;
-import org.jenkinsci.plugins.bitbucket.server.api.model.PageRequest;
 import org.jenkinsci.plugins.bitbucket.server.api.model.Repository;
 
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -32,7 +30,8 @@ public interface BitbucketServerAPI {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/api/1.0/projects/{project}/repos")
     Page<Repository> getRepositories(@PathParam("project") String project,
-                                     @BeanParam PageRequest pageRequest);
+                                     @QueryParam("start") Integer start,
+                                     @QueryParam("limit") Integer limit);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -45,7 +44,8 @@ public interface BitbucketServerAPI {
     @Path("/api/1.0/projects/{project}/repos/{repositorySlug}/branches")
     Page<Branch> getBranches(@PathParam("project") String project,
                              @PathParam("repositorySlug") String repositorySlug,
-                             @BeanParam PageRequest pageRequest);
+                             @QueryParam("start") Integer start,
+                             @QueryParam("limit") Integer limit);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -68,7 +68,8 @@ public interface BitbucketServerAPI {
     @Path("/api/1.0/projects/{project}/repos/{repositorySlug}/settings/hooks")
     Page<HookAddon> getHooks(@PathParam("project") String project,
                              @PathParam("repositorySlug") String repositorySlug,
-                             @BeanParam PageRequest pageRequest);
+                             @QueryParam("start") Integer start,
+                             @QueryParam("limit") Integer limit);
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)

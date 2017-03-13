@@ -54,7 +54,7 @@ public class BitbucketSCMNavigatorTest {
     public void visitSources_noRepositories() throws IOException, InterruptedException {
         SCMSourceObserver observer = mock(SCMSourceObserver.class);
         String project = "test";
-        when(clientMock.getRepositories(project, null)).thenReturn(PageBuilder.<Repository>aPage()
+        when(clientMock.getRepositories(project, null, null)).thenReturn(PageBuilder.<Repository>aPage()
                                                                            .isLastPage(true)
                                                                            .values(Collections.<Repository>emptyList())
                                                                            .build());
@@ -80,7 +80,7 @@ public class BitbucketSCMNavigatorTest {
                 .name("Repository 2")
                 .slug("repo2")
                 .build();
-        when(clientMock.getRepositories(project, null)).thenReturn(PageBuilder.<Repository>aPage()
+        when(clientMock.getRepositories(project, null, null)).thenReturn(PageBuilder.<Repository>aPage()
                                                                            .isLastPage(true)
                                                                            .values(Arrays.asList(repository1, repository2))
                                                                            .build());
@@ -113,7 +113,7 @@ public class BitbucketSCMNavigatorTest {
                 .slug("repo")
                 .links(Collections.<String, List<Link>>emptyMap())
                 .build();
-        when(clientMock.getRepositories(project, null)).thenReturn(PageBuilder.<Repository>aPage()
+        when(clientMock.getRepositories(project, null, null)).thenReturn(PageBuilder.<Repository>aPage()
                                                                            .isLastPage(true)
                                                                            .values(Collections.singletonList(repository))
                                                                            .build());
