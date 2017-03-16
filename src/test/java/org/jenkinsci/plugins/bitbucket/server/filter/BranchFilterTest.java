@@ -18,6 +18,13 @@ public class BranchFilterTest {
     }
 
     @Test
+    public void isBranchAllowed_containingSlash() {
+        BranchFilter filter = new BranchFilter("*", null);
+
+        assertTrue(filter.isBranchAllowed("feature/cross-domain-usage"));
+    }
+
+    @Test
     public void isBranchAllowed_withExcludes_noMatch() {
         BranchFilter filter = new BranchFilter("*", "excluded");
 
