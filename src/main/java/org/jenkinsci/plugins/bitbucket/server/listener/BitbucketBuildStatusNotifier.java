@@ -6,7 +6,6 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.git.Revision;
 import hudson.plugins.git.util.BuildData;
-import jenkins.model.Jenkins;
 import jenkins.scm.api.SCMSource;
 import jenkins.scm.api.SCMSourceOwner;
 import org.jenkinsci.plugins.bitbucket.server.BitbucketSCMSource;
@@ -14,6 +13,7 @@ import org.jenkinsci.plugins.bitbucket.server.api.BitbucketServerAPI;
 import org.jenkinsci.plugins.bitbucket.server.api.model.BuildStatus;
 import org.jenkinsci.plugins.bitbucket.server.api.model.builder.BuildStatusBuilder;
 import org.jenkinsci.plugins.bitbucket.server.client.BitbucketServerClientService;
+import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
@@ -74,7 +74,7 @@ final class BitbucketBuildStatusNotifier {
         BuildStatusBuilder builder = aBuildStatus()
                 .key(build.getParent().getName())
                 .name(build.getDisplayName())
-                .url(retrieveBuildUrl(build));
+                .url(DisplayURLProvider.get().getRunURL(build));
 
         Result result = build.getResult();
         if (Result.SUCCESS.equals(result)) {
@@ -92,12 +92,7 @@ final class BitbucketBuildStatusNotifier {
     }
 
     private static String retrieveBuildUrl(Run<?, ?> build) {
-        String rootUrl = Jenkins.getInstance().getRootUrl();
-        if (rootUrl == null) {
-            throw new IllegalStateException("Could not determine Jenkins URL. You should set one in Manage Jenkins.");
-        } else {
-            return rootUrl + build.getUrl();
-        }
+        return DisplayURLProvider.get().getRunURL(build);
     }
 
     private static String retrieveBuildRevision(Run<?, ?> build) {
