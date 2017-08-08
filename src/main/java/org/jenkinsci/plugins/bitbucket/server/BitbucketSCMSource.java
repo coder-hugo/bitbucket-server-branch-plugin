@@ -43,6 +43,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
+import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -148,28 +149,32 @@ public class BitbucketSCMSource extends SCMSource {
         listener.getLogger().printf("Looking up %s/%s for branches%n", project, repository);
         Set<SCMHead> includedHeads = observer.getIncludes();
         BranchFilter filter = new BranchFilter(includes, excludes);
-        for (Branch branch : client.getBranches(project, repository)) {
-            checkInterrupt();
-            SCMHead head = new BranchSCMHead(branch.getDisplayId());
-            if (includedHeads != null && !includedHeads.contains(head)) {
-                continue;
-            }
-            if (filter.isBranchAllowed(branch.getDisplayId())) {
-                AbstractGitSCMSource.SCMRevisionImpl revision = new AbstractGitSCMSource.SCMRevisionImpl(head, branch.getLatestCommit());
-                listener.getLogger().printf("Checking branch %s form %s/%s%n", branch.getDisplayId(), project, repository);
-                if (criteria != null) {
-                    if (criteria.isHead(createProbe(head, revision), listener)) {
-                        listener.getLogger().println("Met criteria");
-                    } else {
-                        listener.getLogger().println("Does not meet criteria");
-                        continue;
-                    }
+        try {
+            for (Branch branch : client.getBranches(project, repository)) {
+                checkInterrupt();
+                SCMHead head = new BranchSCMHead(branch.getDisplayId());
+                if (includedHeads != null && !includedHeads.contains(head)) {
+                    continue;
                 }
-                observer.observe(head, revision);
+                if (filter.isBranchAllowed(branch.getDisplayId())) {
+                    AbstractGitSCMSource.SCMRevisionImpl revision = new AbstractGitSCMSource.SCMRevisionImpl(head, branch.getLatestCommit());
+                    listener.getLogger().printf("Checking branch %s form %s/%s%n", branch.getDisplayId(), project, repository);
+                    if (criteria != null) {
+                        if (criteria.isHead(createProbe(head, revision), listener)) {
+                            listener.getLogger().println("Met criteria");
+                        } else {
+                            listener.getLogger().println("Does not meet criteria");
+                            continue;
+                        }
+                    }
+                    observer.observe(head, revision);
+                }
+                if (!observer.isObserving()) {
+                    return;
+                }
             }
-            if (!observer.isObserving()) {
-                return;
-            }
+        } catch (NotFoundException e) {
+            listener.getLogger().printf("Project (%s) or repository (%s) doesn't exist anymore", project, repository);
         }
     }
 
