@@ -16,6 +16,7 @@ import jenkins.scm.api.SCMHeadEvent;
 import jenkins.scm.api.SCMNavigator;
 import jenkins.scm.api.SCMRevision;
 import jenkins.scm.api.SCMSource;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.transport.URIish;
 import org.jenkinsci.plugins.bitbucket.server.BranchSCMHead;
 import org.jenkinsci.plugins.bitbucket.server.webhook.api.BitbucketWebHookEvent;
@@ -140,8 +141,10 @@ public class BitbucketWebhook extends CrumbExclusion implements UnprotectedRootA
             BitbucketWebHookEvent payload = getPayload();
             String project = payload.getProject();
             String repository = payload.getRepository();
-            return (urIish.getScheme().equals("https") && urIish.getPath().equals("/scm/" + project + "/" + repository + ".git"))
-                    || (urIish.getScheme().equals("ssh") && urIish.getPath().equals("/" + project.toLowerCase() + "/" + repository + ".git"));
+            String httpUrlPath = "/scm/" + project + "/" + repository + ".git";
+            String sshUrlPath = "/" + project.toLowerCase() + "/" + repository + ".git";
+            return (StringUtils.equals(urIish.getScheme(), "https") && StringUtils.equals(urIish.getPath(), httpUrlPath))
+                   || (StringUtils.equals(urIish.getScheme(), "ssh") && StringUtils.equals(urIish.getPath(), sshUrlPath));
         }
     }
 }
