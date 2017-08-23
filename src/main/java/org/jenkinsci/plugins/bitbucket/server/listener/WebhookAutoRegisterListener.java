@@ -17,12 +17,14 @@ import org.jenkinsci.plugins.bitbucket.server.client.BitbucketPagingClient;
 import org.jenkinsci.plugins.bitbucket.server.webhook.BitbucketWebhook;
 import org.jenkinsci.plugins.bitbucket.server.webhook.api.BitbucketWebHookProvider;
 
+import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jenkinsci.plugins.bitbucket.server.webhook.api.BitbucketWebHookProvider.UpdateAction.ADD;
@@ -95,24 +97,28 @@ public class WebhookAutoRegisterListener extends ItemListener {
                     BitbucketServerAPI client = source.getClient();
                     String project = source.getProject();
                     String repository = source.getRepository();
-                    for (HookAddon hookAddon : new BitbucketPagingClient(client).getHooks(project, repository)) {
-                        String addonKey = hookAddon.getDetails().getKey();
-                        String hookUrl = rootUrl + "/" + BitbucketWebhook.PATH + "/" + addonKey;
-                        if (providers.containsKey(addonKey)) {
-                            JsonNode hookSettings = client.getHookSettings(project, repository, addonKey);
-                            BitbucketWebHookProvider provider = providers.get(addonKey);
-                            JsonNode currentSettings = null;
-                            if (hookAddon.isEnabled()) {
-                                if (provider.isUrlConfigured(hookSettings, hookUrl)) {
-                                    break;
-                                } else {
-                                    currentSettings = hookSettings;
+                    try {
+                        for (HookAddon hookAddon : new BitbucketPagingClient(client).getHooks(project, repository)) {
+                            String addonKey = hookAddon.getDetails().getKey();
+                            String hookUrl = rootUrl + "/" + BitbucketWebhook.PATH + "/" + addonKey;
+                            if (providers.containsKey(addonKey)) {
+                                JsonNode hookSettings = client.getHookSettings(project, repository, addonKey);
+                                BitbucketWebHookProvider provider = providers.get(addonKey);
+                                JsonNode currentSettings = null;
+                                if (hookAddon.isEnabled()) {
+                                    if (provider.isUrlConfigured(hookSettings, hookUrl)) {
+                                        break;
+                                    } else {
+                                        currentSettings = hookSettings;
+                                    }
                                 }
+                                client.updateHookSettings(project, repository, addonKey, provider.getUpdatedConfiguration(currentSettings, ADD, hookUrl));
+                                client.enableHook(project, repository, addonKey);
+                                break;
                             }
-                            client.updateHookSettings(project, repository, addonKey, provider.getUpdatedConfiguration(currentSettings, ADD, hookUrl));
-                            client.enableHook(project, repository, addonKey);
-                            break;
                         }
+                    } catch (NotFoundException e) {
+                        LOGGER.log(Level.FINE, "Project (%s) or repository (%s) doesn't exist anymore", new Object[]{project, repository});
                     }
                 }
             }
