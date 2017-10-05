@@ -53,14 +53,20 @@ public final class BitbucketServerClientService {
         CacheKey key = new CacheKey(clientConfiguration, context);
         BitbucketServerAPI client = clientCache.getIfPresent(key);
         if (client == null) {
-            WebTarget target = ClientBuilder.newBuilder()
-                    .register(new BasicAuthFilter(findCredentials(clientConfiguration, context)))
-                    .register(new LoggingFilter())
-                    .build()
-                    .property(SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
-                    .target(clientConfiguration.getBaseUrl());
-            client = WebResourceFactory.newResource(BitbucketServerAPI.class, target);
-            clientCache.put(key, client);
+            ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(BitbucketServerClientService.class.getClassLoader());
+                WebTarget target = ClientBuilder.newBuilder()
+                        .register(new BasicAuthFilter(findCredentials(clientConfiguration, context)))
+                        .register(new LoggingFilter())
+                        .build()
+                        .property(SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
+                        .target(clientConfiguration.getBaseUrl());
+                client = WebResourceFactory.newResource(BitbucketServerAPI.class, target);
+                clientCache.put(key, client);
+            } finally {
+                Thread.currentThread().setContextClassLoader(currentClassLoader);
+            }
         }
         return client;
     }
