@@ -14,8 +14,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.jenkinsci.plugins.bitbucket.server.api.BitbucketServerAPI;
 
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.concurrent.TimeUnit;
 
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.allOf;
@@ -62,7 +67,7 @@ public final class BitbucketServerClientService {
                         .build()
                         .property(SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true)
                         .target(clientConfiguration.getBaseUrl());
-                client = WebResourceFactory.newResource(BitbucketServerAPI.class, target);
+                client = createClientProxy(WebResourceFactory.newResource(BitbucketServerAPI.class, target));
                 clientCache.put(key, client);
             } finally {
                 Thread.currentThread().setContextClassLoader(currentClassLoader);
@@ -77,6 +82,12 @@ public final class BitbucketServerClientService {
 
     void put(BitbucketClientConfiguration clientConfiguration, SCMSourceOwner context, BitbucketServerAPI client) {
         clientCache.put(new CacheKey(clientConfiguration, context), client);
+    }
+
+    private BitbucketServerAPI createClientProxy(BitbucketServerAPI client) {
+        return (BitbucketServerAPI) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                                                           new Class[]{BitbucketServerAPI.class},
+                                                           new ClientProxyInvocationHandler(client));
     }
 
     private StandardUsernamePasswordCredentials findCredentials(BitbucketClientConfiguration clientConfiguration, SCMSourceOwner context) {
@@ -120,6 +131,32 @@ public final class BitbucketServerClientService {
                     .append(clientConfiguration)
                     .append(context)
                     .toHashCode();
+        }
+    }
+
+    private static class ClientProxyInvocationHandler implements InvocationHandler {
+
+        private final BitbucketServerAPI client;
+
+        ClientProxyInvocationHandler(BitbucketServerAPI client) {
+            this.client = client;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(BitbucketServerClientService.class.getClassLoader());
+                return method.invoke(client, args);
+            } catch (Exception e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof WebApplicationException || cause instanceof ProcessingException) {
+                    throw cause;
+                }
+                throw e;
+            } finally {
+                Thread.currentThread().setContextClassLoader(currentClassLoader);
+            }
         }
     }
 }
